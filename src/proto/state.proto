@@ -1,0 +1,77 @@
+package ecmaserve.trash;
+syntax = "proto3";
+
+enum Suite
+{
+    HEARTS = 0;
+    CLUBS = 1;
+    SPADES = 2;
+    DIAMONDS = 3;
+}
+
+enum FaceValue
+{
+    Ace = 1;
+    Two = 2;
+    Three = 3;
+    Four = 4;
+    Five = 5;
+    Six = 6;
+    Seven = 7;
+    Eight = 8;
+    Nine = 9;
+    Ten = 10;
+    Jack = 11;
+    Queen = 12;
+    King = 13;
+}
+
+message Card {
+    Suite suite = 1;
+    FaceValue value = 2;
+}
+
+message Deck {
+    repeated Card cards = 1;
+}
+
+message DiscardPile {
+    repeated Card cards = 1;
+}
+
+message DrawPile {
+    repeated Card cards = 1;
+}
+
+message CardSpot
+{
+    Card current = 1;
+    bool face_down = 2;
+    bool is_required = 4;
+}
+
+message PlayerTableau
+{
+    CardSpot slot1 = 1;
+    CardSpot slot2 = 2;
+    CardSpot slot3 = 3;
+    CardSpot slot4 = 4;
+    CardSpot slot5 = 5;
+    CardSpot slot6 = 6;
+    CardSpot slot7 = 7;
+    CardSpot slot8 = 8;
+    CardSpot slot9 = 9;
+    CardSpot slot10 = 10;
+    string player_id = 20;
+    Card card_in_hand = 22;
+}
+
+message State {
+    Deck deck = 1;
+    DrawPile draw_pile = 2;
+    DiscardPile discard_pile = 3;
+    repeated string player_ids = 10;
+    bool game_started = 15;
+    string current_player_id = 20;
+    repeated PlayerTableau tableaus = 30;
+}

@@ -1,0 +1,45 @@
+{
+  "name": "trash",
+  "version": "0.0.0",
+  "description": "Web-based card game using the EcmaserveGames Ecosystem",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npm run compile:proto:types && npm run build",
+    "compile:proto": "rimraf lib/proto && mkdirp lib/proto && copyfiles -f src/proto/*.proto lib/proto && pbjs -t static-module -w commonjs -o lib/proto/types.js src/proto/actions.proto src/proto/state.proto",
+    "compile:proto:types": "npm run compile:proto && pbjs -t static-module src/proto/actions.proto src/proto/state.proto | pbts -o src/proto/types.d.ts -",
+    "build": "tsc -p .",
+    "build:live": "nodemon --preserve-symlinks --watch 'src/**/*.ts' --exec \"ts-node\"  src/index.ts",
+    "start": "npm run build:live",
+    "test": "nyc cucumber"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EcmaserveGames/trash.git"
+  },
+  "keywords": [
+    "board-game",
+    "card-game",
+    "web",
+    "trash"
+  ],
+  "author": "Ryan Hafer <hafer.ryan@gmail.com>",
+  "license": "SEE LICENSE IN LICENCSE",
+  "bugs": {
+    "url": "https://github.com/EcmaserveGames/trash/issues"
+  },
+  "homepage": "https://github.com/EcmaserveGames/trash#readme",
+  "dependencies": {
+    "@ecmaservegames/host": "*",
+    "shuffle-array": "^1.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.6",
+    "@types/shuffle-array": "^1.0.0",
+    "copyfiles": "^2.4.0",
+    "mkdirp": "^1.0.4",
+    "nodemon": "^2.0.6",
+    "rimraf": "^3.0.2",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
+  }
+}
