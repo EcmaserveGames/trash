@@ -4,6 +4,7 @@ import { PlayInTurnOrder, ReplacingCards } from '../rules';
 import { deck } from './deck';
 import { CardDraw, Discard, Join, Start } from './mechanics';
 import { IActions, IState, UserContext } from './types';
+import serve from 'koa-static'
 
 export function createGame()
 {
@@ -35,5 +36,8 @@ export function createGame()
             CardDraw,
             Discard
         )
+        .addMiddleware(app => {
+            app.use(serve('lib/client'))
+        })
     return game
 }
