@@ -1,13 +1,28 @@
-import { h, createContext, ComponentChildren } from 'preact'
+import { h, Component } from 'preact'
+import { GameContext } from './GameContext'
+import { GameStateProvider } from './GameStateProvider'
 
-const GameContext = createContext('hi world2')
+interface State {}
 
-function MyComponent(props: { children?: ComponentChildren }) {
-  return (
-    <GameContext.Consumer>{(value) => <div>{value}</div>}</GameContext.Consumer>
-  )
-}
-
-export function App() {
-  return <MyComponent />
+export class App extends Component<{}, State> {
+  render() {
+    return (
+      <GameStateProvider>
+        <GameContext.Consumer>
+          {(value) => {
+            if (value.gameState) {
+              return <div>In The Game</div>
+            } else {
+              return (
+                <div>
+                  <h1>Welcome To Trash</h1>
+                  <button onClick={value.startAGame}>Start A Game</button>
+                </div>
+              )
+            }
+          }}
+        </GameContext.Consumer>
+      </GameStateProvider>
+    )
+  }
 }

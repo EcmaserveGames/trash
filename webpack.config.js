@@ -9,7 +9,7 @@ module.exports = {
     filename: 'client.js',
   },
   resolve: {
-    extensions: ['.ts', '.tsx'],
+    extensions: ['.js', '.ts', '.tsx'],
   },
   module: {
     rules: [

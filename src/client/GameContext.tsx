@@ -1,8 +1,11 @@
 import { createContext } from 'preact'
-import { IState } from './types'
+import { ecmaserve } from '../proto/types'
 
 interface GameContext {
-  gameState: IState
+  startAGame(): Promise<void>
+  gameState?: ecmaserve.trash.IState
 }
 
-export const GameContext = createContext<GameContext>({ gameState: {} })
+export const GameContext = createContext<GameContext>({
+  startAGame: () => Promise.resolve(),
+})
