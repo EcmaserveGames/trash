@@ -9,9 +9,5 @@ function MyComponent(props: { children?: ComponentChildren }) {
 }
 
 export function App() {
-  return (
-    <GameContext.Provider value="hi world">
-      <MyComponent />
-    </GameContext.Provider>
-  )
+  return <MyComponent />
 }

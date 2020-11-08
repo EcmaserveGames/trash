@@ -1,9 +1,4 @@
 {
-  "include": [
-    "src/index.ts",
-    "src/server/**/*",
-    "src/rules/**/*"
-  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
