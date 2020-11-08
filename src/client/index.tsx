@@ -1,5 +1,11 @@
 import 'whatwg-fetch'
 import { h, render } from 'preact'
 import { App } from './App'
+import { GameStateProvider } from './GameStateProvider'
 
-render(<App />, document.body)
+render(
+  <GameStateProvider>
+    <App />
+  </GameStateProvider>,
+  document.body
+)

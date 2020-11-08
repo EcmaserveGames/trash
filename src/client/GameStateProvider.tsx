@@ -1,21 +1,20 @@
 import { h, Component } from 'preact'
 import { IState } from '../server/types'
 import { GameContext } from './GameContext'
-import * as Proto from '../proto/types'
-import { blobToBuffer } from './blobToBuffer'
+import { GameResponse } from '@ecmaservegames/host'
+import { GameClient } from './Client'
 
 interface Props {
-  stateSocketUrl?: string
+  gameId?: string
 }
 
 interface State {
+  gameId?: string
   gameState?: IState
+  gameClient?: GameClient
 }
 
-export class GameStateProvider extends Component<{}, State> {
-  actionSocket?: WebSocket
-  stateSocket?: WebSocket
-
+export class GameStateProvider extends Component<Props, State> {
   constructor() {
     super()
     this.state = {}
@@ -25,8 +24,10 @@ export class GameStateProvider extends Component<{}, State> {
     return (
       <GameContext.Provider
         value={{
-          startAGame: this.startAGame,
+          gameId: this.state.gameId,
+          openANewGameSession: this.openANewGameSession,
           gameState: this.state.gameState,
+          gameClient: this.state.gameClient,
         }}
       >
         <div>{this.props.children}</div>
@@ -34,37 +35,48 @@ export class GameStateProvider extends Component<{}, State> {
     )
   }
 
-  startAGame = async () => {
+  async componentDidMount() {
+    if (this.props.gameId) {
+      try {
+        const response = await fetch(`/games/${this.props.gameId}`, {
+          method: 'GET',
+        })
+        const game: GameResponse = await response.json()
+        this.connectToGame(game)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
+  componentWillUnmount() {
+    this.state.gameClient?.destroy()
+  }
+
+  openANewGameSession = async () => {
     try {
       const response = await fetch('/games', { method: 'POST' })
       const game = await response.json()
-      this.actionSocket = new WebSocket(
-        `ws://${location.host}${game['relativePathActionsSocket']}`
-      )
-
-      this.stateSocket = new WebSocket(
-        `ws://${location.host}${game['relativePathStateSocket']}`
-      )
-      console.log(this.stateSocket)
-
-      this.stateSocket.addEventListener('open', (event) => {
-        console.log('opened', event)
-        this.stateSocket?.send('Hello?')
-      })
-
-      this.stateSocket.addEventListener('message', async (event) => {
-        if (event.data instanceof Blob) {
-          const buffer = await blobToBuffer(event.data)
-          const gameState = Proto.ecmaserve.trash.State.decode(
-            new Uint8Array(buffer)
-          )
-          this.setState({
-            gameState,
-          })
-        }
-      })
+      this.connectToGame(game)
     } catch (error) {
       console.error(error)
     }
+  }
+
+  connectToGame(game: GameResponse) {
+    if (this.state.gameClient) {
+      this.state.gameClient.destroy()
+    }
+    const client = GameClient.create(game)
+    client.onStateUpdate((gameState) => {
+      this.setState({ gameState }, () => {
+        console.log('State Updated: ', this.state)
+      })
+    })
+    client.joinGame()
+    this.setState({
+      gameId: game.id,
+      gameClient: client,
+    })
   }
 }
