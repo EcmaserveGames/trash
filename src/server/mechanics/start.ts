@@ -1,4 +1,5 @@
 import { Mechanic } from '@ecmaservegames/host'
+import shuffle from 'shuffle-array'
 import { dealCard, shuffleFullDeck, tableauToSpotArray } from '../helpers'
 import { IActions, ICard, IState, UserContext } from '../types'
 
@@ -27,4 +28,9 @@ export const Start = new Mechanic<IActions, IState, UserContext>('start')
     gameState.drawPile = {
       cards: startingDeck,
     }
+    // Randomize the starting player
+    const tableaus = gameState.tableaus || []
+    shuffle(tableaus)
+    gameState.tableaus = tableaus
+    gameState.currentPlayerId = tableaus[0].playerId
   })

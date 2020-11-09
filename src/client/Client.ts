@@ -1,7 +1,9 @@
 import { GameResponse } from '@ecmaservegames/host'
 import { blobToBuffer } from './blobToBuffer'
 import * as Proto from '../proto/types'
-import { resolve } from 'path'
+import { IActions } from '../server/types'
+
+const createAction = Proto.ecmaserve.trash.Actions.create
 
 export class GameClient {
   actionSocket: WebSocket
@@ -45,21 +47,59 @@ export class GameClient {
 
   async joinGame() {
     // Create the message
-    const message = Proto.ecmaserve.trash.Actions.create({
+    const message = createAction({
       join: {},
     })
-    const buffer = Proto.ecmaserve.trash.Actions.encode(message).finish()
-    await this.__sendAction(buffer)
+    await this.__sendAction(message)
     console.log('Welcome to the game 🃏')
   }
 
   async startPlaying() {
-    const message = Proto.ecmaserve.trash.Actions.create({
+    const message = createAction({
       start: {},
     })
-    const buffer = Proto.ecmaserve.trash.Actions.encode(message).finish()
-    await this.__sendAction(buffer)
+    await this.__sendAction(message)
     console.log('the game is now started!')
+  }
+
+  drawFromDiscard() {
+    return this.drawCard({
+      draw: {
+        source: Proto.ecmaserve.trash.CardSource.discard,
+      },
+    })
+  }
+
+  drawFromDrawPile() {
+    return this.drawCard({
+      draw: {
+        source: Proto.ecmaserve.trash.CardSource.draw,
+      },
+    })
+  }
+
+  async drawCard(action: Proto.ecmaserve.trash.IActions) {
+    const message = createAction(action)
+    await this.__sendAction(message)
+    console.log('Drew a card')
+  }
+
+  async replaceCard(slot: Proto.ecmaserve.trash.SlotNumber) {
+    const message = createAction({
+      replace: {
+        slot,
+      },
+    })
+    await this.__sendAction(message)
+    console.log('Replaced a card')
+  }
+
+  async discard() {
+    const message = createAction({
+      discard: {},
+    })
+    await this.__sendAction(message)
+    console.log('Discarded current card')
   }
 
   private __whenOpen(socket: WebSocket) {
@@ -82,7 +122,8 @@ export class GameClient {
     })
   }
 
-  private async __sendAction(buffer: Uint8Array) {
+  private async __sendAction(message: IActions) {
+    const buffer = Proto.ecmaserve.trash.Actions.encode(message).finish()
     await this.__whenOpen(this.actionSocket)
     return new Promise((resolve, reject) => {
       const otherListeners: [

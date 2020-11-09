@@ -7,6 +7,7 @@ interface Props {
   }
   faceDown?: boolean | null
   card?: Proto.ecmaserve.trash.ICard | null
+  onClick?: () => void
 }
 
 const cardStyle = {
@@ -69,7 +70,7 @@ function RenderValue({
   return null
 }
 
-export function RenderCard({ faceDown, card, style }: Props) {
+export function RenderCard({ faceDown, card, style, onClick }: Props) {
   if (faceDown) {
     const faceDownStyle = {
       backgroundColor: 'olive',
@@ -78,7 +79,10 @@ export function RenderCard({ faceDown, card, style }: Props) {
       border: '.25rem solid darkolivegreen',
     }
     return (
-      <div style={{ ...cardStyle, ...faceDownStyle, ...style }}>
+      <div
+        style={{ ...cardStyle, ...faceDownStyle, ...style }}
+        onClick={onClick}
+      >
         <div>🗑</div>
       </div>
     )
@@ -88,7 +92,7 @@ export function RenderCard({ faceDown, card, style }: Props) {
   }
 
   return (
-    <div style={{ ...cardStyle, ...suiteStyle, ...style }}>
+    <div style={{ ...cardStyle, ...suiteStyle, ...style }} onClick={onClick}>
       <div style={{ position: 'absolute', top: '.1rem', left: '.5rem' }}>
         <RenderValue value={card?.value} />
         <RenderSuite suite={card?.suite} />

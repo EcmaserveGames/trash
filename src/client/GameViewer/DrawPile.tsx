@@ -1,5 +1,7 @@
 import { h } from 'preact'
+import { useContext } from 'preact/hooks'
 import * as Proto from '../../proto/types'
+import { GameContext } from '../GameContext'
 import { RenderCard } from './RenderCard'
 
 interface Props {
@@ -7,6 +9,7 @@ interface Props {
 }
 
 export function DrawPile({ pile }: Props) {
+  const context = useContext(GameContext)
   if (!pile.cards) return null
 
   const card = pile.cards.shift()
@@ -24,6 +27,7 @@ export function DrawPile({ pile }: Props) {
           boxShadow: `${height}px ${height}px ${blur}px 1px #CCC`,
         }}
         card={card}
+        onClick={() => context.gameClient?.drawFromDrawPile()}
       />
     </div>
   )
