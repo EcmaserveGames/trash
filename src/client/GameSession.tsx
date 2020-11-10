@@ -10,6 +10,9 @@ export function GameSession() {
       <div>
         <h1>Open Game Session</h1>
         <p>The game is ready for others to join</p>
+        <p>
+          <input value={location.href + '#' + context.gameId} />
+        </p>
         <button onClick={() => context.gameClient?.startPlaying()}>
           Start Playing
         </button>

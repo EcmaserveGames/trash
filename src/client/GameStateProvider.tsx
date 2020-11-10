@@ -3,6 +3,7 @@ import { IState } from '../server/types'
 import { GameContext } from './GameContext'
 import { GameResponse } from '@ecmaservegames/host'
 import { GameClient } from './Client'
+import { ProvideName } from './TempIdentityProvider/ProvideName'
 
 interface Props {
   gameId?: string
@@ -12,6 +13,7 @@ interface State {
   gameId?: string
   gameState?: IState
   gameClient?: GameClient
+  identityToken?: string
 }
 
 export class GameStateProvider extends Component<Props, State> {
@@ -21,36 +23,58 @@ export class GameStateProvider extends Component<Props, State> {
   }
 
   render() {
+    const notIdentified = this.props.gameId && !this.state.identityToken
     return (
       <GameContext.Provider
         value={{
           gameId: this.state.gameId,
           openANewGameSession: this.openANewGameSession,
+          setIdentityToken: this.setIdentityToken,
+          getIdentityToken: () => this.state.identityToken,
           gameState: this.state.gameState,
           gameClient: this.state.gameClient,
         }}
       >
-        <div>{this.props.children}</div>
+        <div>{notIdentified ? <ProvideName /> : this.props.children}</div>
       </GameContext.Provider>
     )
   }
 
   async componentDidMount() {
-    if (this.props.gameId) {
-      try {
-        const response = await fetch(`/games/${this.props.gameId}`, {
-          method: 'GET',
-        })
-        const game: GameResponse = await response.json()
-        this.connectToGame(game)
-      } catch (error) {
-        console.error(error)
-      }
+    if (this.props.gameId && this.state.identityToken) {
+      this.tryConnectToGameById(this.props.gameId)
+    }
+  }
+
+  componentDidUpdate(_: Props, prevState: State) {
+    if (
+      this.props.gameId &&
+      !prevState.identityToken &&
+      this.state.identityToken
+    ) {
+      this.tryConnectToGameById(this.props.gameId)
     }
   }
 
   componentWillUnmount() {
     this.state.gameClient?.destroy()
+  }
+
+  async tryConnectToGameById(gameId: string) {
+    try {
+      const response = await fetch(`/games/${gameId}`, {
+        method: 'GET',
+      })
+      const game: GameResponse = await response.json()
+      this.connectToGame(game)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  setIdentityToken = (token: string) => {
+    console.log('identified as ', token)
+    this.setState({ identityToken: token })
   }
 
   openANewGameSession = async () => {
@@ -67,7 +91,7 @@ export class GameStateProvider extends Component<Props, State> {
     if (this.state.gameClient) {
       this.state.gameClient.destroy()
     }
-    const client = GameClient.create(game)
+    const client = GameClient.create(game, this.state.identityToken)
     client.onStateUpdate((gameState) => {
       this.setState({ gameState }, () => {
         console.log('State Updated: ', this.state)

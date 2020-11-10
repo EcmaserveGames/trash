@@ -1,19 +1,15 @@
 import { GameServer } from '@ecmaservegames/host'
 import path from 'path'
-import { PlayInTurnOrder, ReplacingCards } from '../rules'
+import { OnlyOneCardInHand, PlayInTurnOrder, ReplacingCards } from '../rules'
 import { deck } from './deck'
 import { CardDraw, Discard, Join, Start } from './mechanics'
 import { IActions, IState, UserContext } from './types'
 import send from 'koa-send'
+import { naiveAuth } from './naiveAuth'
 
 export function createGame() {
   const game = new GameServer()
-    .useAuthentication<UserContext>(async function customAuth(ctx, next) {
-      ctx.state.user = {
-        sub: 'player-1',
-      }
-      await next()
-    })
+    .useAuthentication<UserContext>(naiveAuth)
     .useState<IState>(
       path.resolve(__dirname, '../proto/state.proto'),
       'ecmaserve.trash',
@@ -27,7 +23,7 @@ export function createGame() {
       path.resolve(__dirname, '../proto/actions.proto'),
       'ecmaserve.trash'
     )
-    .useRules(PlayInTurnOrder, ReplacingCards)
+    .useRules(PlayInTurnOrder, ReplacingCards, OnlyOneCardInHand)
     .useMechanics(Join, Start, CardDraw, Discard)
     .addRoutes((router) => {
       router.get('/', (ctx) => {

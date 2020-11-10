@@ -4,7 +4,7 @@ import { App } from './App'
 import { GameStateProvider } from './GameStateProvider'
 
 render(
-  <GameStateProvider>
+  <GameStateProvider gameId={location.hash.substr(1) || undefined}>
     <App />
   </GameStateProvider>,
   document.body

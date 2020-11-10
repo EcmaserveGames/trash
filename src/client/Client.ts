@@ -9,8 +9,10 @@ export class GameClient {
   actionSocket: WebSocket
   stateSocket: WebSocket
   waitingMessages: Uint8Array[] = []
+  identity?: string
 
-  constructor(game: GameResponse) {
+  constructor(game: GameResponse, identityToken?: string) {
+    this.identity = identityToken
     this.actionSocket = new WebSocket(
       `ws://${location.host}${game.relativePathActionsSocket}`
     )
@@ -23,8 +25,8 @@ export class GameClient {
     // Writing custom clients is less than ideal
   }
 
-  static create(game: GameResponse) {
-    return new GameClient(game)
+  static create(game: GameResponse, identityToken?: string) {
+    return new GameClient(game, identityToken)
   }
 
   destroy() {
@@ -46,6 +48,13 @@ export class GameClient {
   }
 
   async joinGame() {
+    await Promise.all([
+      this.__whenOpen(this.actionSocket),
+      this.__whenOpen(this.stateSocket),
+    ])
+    // Send your identity in handshake
+    this.actionSocket.send(JSON.stringify({ identity: this.identity }))
+    this.stateSocket.send(JSON.stringify({ identity: this.identity }))
     // Create the message
     const message = createAction({
       join: {},
@@ -124,7 +133,7 @@ export class GameClient {
 
   private async __sendAction(message: IActions) {
     const buffer = Proto.ecmaserve.trash.Actions.encode(message).finish()
-    await this.__whenOpen(this.actionSocket)
+
     return new Promise((resolve, reject) => {
       const otherListeners: [
         'message' | 'close' | 'error' | 'open',
