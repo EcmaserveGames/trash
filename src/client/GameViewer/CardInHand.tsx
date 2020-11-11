@@ -10,8 +10,8 @@ export function CardInHand(props: Props) {
       card={props.card}
       style={{
         fontSize: '1.25em',
-        width: '6.25rem',
-        height: '8.75rem',
+        width: '10.75vh',
+        height: '15vh',
       }}
     />
   )

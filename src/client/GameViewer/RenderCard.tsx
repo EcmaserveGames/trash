@@ -16,9 +16,9 @@ interface Props {
 const cardStyle = {
   backgroundColor: '#FFF',
   boxSizing: 'border-box',
-  width: '5rem',
-  height: '7rem',
-  margin: '.5rem',
+  width: '8.5vh',
+  height: '12vh',
+  margin: '.5vh',
   position: 'relative',
   display: 'flex',
   alignItems: 'center',

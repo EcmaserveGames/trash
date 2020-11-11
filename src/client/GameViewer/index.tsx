@@ -1,5 +1,6 @@
 import { h } from 'preact'
 import * as Proto from '../../proto/types'
+import { ConnectionInfo } from './ConnectionInfo'
 import { DiscardPile } from './DiscardPile'
 import { DrawPile } from './DrawPile'
 import { OtherPlayerTableaus } from './OtherPlayersTableaus'
@@ -13,6 +14,7 @@ interface Props {
 export function GameViewer({ gameState }: Props) {
   return (
     <div class="app">
+      <ConnectionInfo />
       <div style={{ display: 'flex', marginBottom: '10vh' }}>
         {gameState.discardPile && <DiscardPile pile={gameState.discardPile} />}
         {gameState.drawPile && <DrawPile pile={gameState.drawPile} />}
