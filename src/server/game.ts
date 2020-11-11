@@ -7,8 +7,8 @@ import { IActions, IState, UserContext } from './types'
 import send from 'koa-send'
 import { naiveAuth } from './naiveAuth'
 
-export function createGame() {
-  const game = new GameServer()
+export function createGame(port: number) {
+  const game = new GameServer({ port })
     .useAuthentication<UserContext>(naiveAuth)
     .useState<IState>(
       path.resolve(__dirname, '../proto/state.proto'),
@@ -26,11 +26,11 @@ export function createGame() {
     .useRules(PlayInTurnOrder, ReplacingCards, OnlyOneCardInHand)
     .useMechanics(Join, Start, CardDraw, Discard)
     .addRoutes((router) => {
-      router.get('/', (ctx) => {
+      router.get('/', (ctx: any) => {
         ctx.redirect('/app/')
         ctx.status = 301
       })
-      router.get('/app/(.*)', (ctx) =>
+      router.get('/app/(.*)', (ctx: any) =>
         (send as any)(ctx, ctx.path.replace(/\/app\//, '/'), {
           index: 'index.html',
           root: path.resolve(__dirname, '../client'),

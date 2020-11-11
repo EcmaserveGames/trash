@@ -1,3 +1,5 @@
-import {createGame} from './server/game';
+import { createGame } from './server/game'
 
-createGame().run()
+const runtimePort = (process.env.PORT && Number(process.env.PORT)) || 4443
+
+createGame(runtimePort).run()

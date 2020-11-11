@@ -2,8 +2,12 @@
   "name": "trash",
   "version": "0.0.0",
   "description": "Web-based card game using the EcmaserveGames Ecosystem",
-  "main": "index.js",
+  "engines": {
+    "node": "14.15.0"
+  },
+  "main": "lib/index.js",
   "scripts": {
+    "postinstall": "npm run compile",
     "compile": "npm run compile:proto && webpack && npm run tsc",
     "compile:app": "webpack",
     "compile:app:watch": "webpack --watch",
@@ -12,8 +16,7 @@
     "compile:proto:types": "pbjs -t static-module src/proto/actions.proto src/proto/state.proto | pbts -o src/proto/types.d.ts -",
     "tsc": "tsc -p tsconfig.server.json",
     "build:live": "nodemon --watch 'src/**/*.ts' --exec \"ts-node\"  src/index.ts",
-    "start": "npm run build:live",
-    "test": "nyc cucumber"
+    "start": "node lib/index.js"
   },
   "repository": {
     "type": "git",
@@ -32,7 +35,7 @@
   },
   "homepage": "https://github.com/EcmaserveGames/trash#readme",
   "dependencies": {
-    "@ecmaservegames/host": "*",
+    "@ecmaservegames/host": "^0.0.10",
     "koa-send": "^5.0.1",
     "preact": "^10.5.5",
     "protobufjs": "^6.10.1",
