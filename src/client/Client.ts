@@ -4,6 +4,8 @@ import { blobToBuffer } from './blobToBuffer'
 import * as Proto from '../proto/types'
 import { IActions } from '../server/types'
 
+const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws'
+
 const createAction = Proto.ecmaserve.trash.Actions.create
 
 interface ActionRejection extends Error {
@@ -29,11 +31,11 @@ export class GameClient {
   constructor(game: GameResponse, identityToken?: string) {
     this.identity = identityToken
     this.actionSocket = new WebSocket(
-      `ws://${location.host}${game.relativePathActionsSocket}`
+      `${socketProtocol}://${location.host}${game.relativePathActionsSocket}`
     )
 
     this.stateSocket = new WebSocket(
-      `ws://${location.host}${game.relativePathStateSocket}`
+      `${socketProtocol}://${location.host}${game.relativePathStateSocket}`
     )
 
     // TODO: SETUP RECONNECT LOGIC
