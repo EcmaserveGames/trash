@@ -19,7 +19,9 @@ interface State {
 export class GameStateProvider extends Component<Props, State> {
   constructor() {
     super()
-    this.state = {}
+    this.state = {
+      identityToken: localStorage.getItem('identity') || undefined,
+    }
   }
 
   render() {
@@ -74,6 +76,7 @@ export class GameStateProvider extends Component<Props, State> {
 
   setIdentityToken = (token: string) => {
     console.log('identified as ', token)
+    localStorage.setItem('identity', token)
     this.setState({ identityToken: token })
   }
 
@@ -92,6 +95,11 @@ export class GameStateProvider extends Component<Props, State> {
       this.state.gameClient.destroy()
     }
     const client = GameClient.create(game, this.state.identityToken)
+
+    window.document.title = 'Trash | ' + game.id
+    location.href = '#' + game.id
+    history.pushState({ identity: this.state.identityToken }, 'Game-' + game.id)
+
     client.onStateUpdate((gameState) => {
       this.setState({ gameState }, () => {
         console.log('State Updated: ', this.state)

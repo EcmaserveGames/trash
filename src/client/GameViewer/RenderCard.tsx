@@ -5,12 +5,16 @@ interface Props {
   style?: {
     [key: string]: any
   }
+  cardBackStyle?: {
+    [key: string]: any
+  }
   faceDown?: boolean | null
   card?: Proto.ecmaserve.trash.ICard | null
   onClick?: () => void
 }
 
 const cardStyle = {
+  backgroundColor: '#FFF',
   boxSizing: 'border-box',
   width: '5rem',
   height: '7rem',
@@ -19,8 +23,9 @@ const cardStyle = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  boxShadow: '0px 0px 3px 1px #e6e6e6',
+  boxShadow: '0px 0px 3px 1px rgba(0,0,0,.5',
   borderRadius: '.25rem',
+  transition: 'box-shadow 0.3s ease-in-out',
 }
 
 function isRed(card?: Proto.ecmaserve.trash.ICard | null) {
@@ -55,8 +60,11 @@ function RenderValue({
 }: {
   value?: Proto.ecmaserve.trash.FaceValue | null
 }) {
-  if (value && value <= 10) {
+  if (value && value > 1 && value <= 10) {
     return <div>{value}</div>
+  }
+  if (value && value === Proto.ecmaserve.trash.FaceValue.Ace) {
+    return <div>A</div>
   }
   if (value && value === Proto.ecmaserve.trash.FaceValue.Jack) {
     return <div>J</div>
@@ -73,17 +81,17 @@ function RenderValue({
 export function RenderCard({ faceDown, card, style, onClick }: Props) {
   if (faceDown) {
     const faceDownStyle = {
-      backgroundColor: 'olive',
+      backgroundColor: 'crimson',
       color: 'white',
       fontWeight: 'bold',
-      border: '.25rem solid darkolivegreen',
+      border: '.25rem solid darkred',
     }
     return (
       <div
         style={{ ...cardStyle, ...faceDownStyle, ...style }}
         onClick={onClick}
       >
-        <div>🗑</div>
+        <div>?</div>
       </div>
     )
   }

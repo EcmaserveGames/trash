@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel="stylesheet" href="static/trash.css">
 	<% for (var chunk in htmlWebpackPlugin.files.css) { %>
 		<link rel="preload" href="<%= htmlWebpackPlugin.files.css[chunk] %>"  as="style">
 	<% } %>

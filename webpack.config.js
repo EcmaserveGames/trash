@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const path = require('path')
 
 module.exports = {
@@ -27,5 +28,10 @@ module.exports = {
       },
     ],
   },
-  plugins: [new HtmlWebpackPlugin({ template: './src/client/index.html' })],
+  plugins: [
+    new HtmlWebpackPlugin({ template: './src/client/index.html' }),
+    new CopyPlugin({
+      patterns: [{ from: 'src/client/static', to: 'static' }],
+    }),
+  ],
 }

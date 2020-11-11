@@ -2,7 +2,9 @@ import { h } from 'preact'
 import * as Proto from '../../proto/types'
 import { DiscardPile } from './DiscardPile'
 import { DrawPile } from './DrawPile'
+import { OtherPlayerTableaus } from './OtherPlayersTableaus'
 import { PlayerTableau } from './PlayerTableau'
+import { PlayerTableauViewer } from './PlayerTableauViewer'
 
 interface Props {
   gameState: Proto.ecmaserve.trash.IState
@@ -10,15 +12,13 @@ interface Props {
 
 export function GameViewer({ gameState }: Props) {
   return (
-    <div>
-      <div style={{ display: 'flex', width: '100%' }}>
+    <div class="app">
+      <div style={{ display: 'flex', marginBottom: '10vh' }}>
         {gameState.discardPile && <DiscardPile pile={gameState.discardPile} />}
         {gameState.drawPile && <DrawPile pile={gameState.drawPile} />}
       </div>
-      {gameState.tableaus &&
-        gameState.tableaus.map((t) => (
-          <PlayerTableau key={`tableau-for-${t.playerId}`} tableau={t} />
-        ))}
+      <OtherPlayerTableaus />
+      <PlayerTableau />
     </div>
   )
 }

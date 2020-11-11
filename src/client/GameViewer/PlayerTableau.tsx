@@ -1,131 +1,138 @@
 import { h } from 'preact'
-import { useContext } from 'preact/hooks'
 import * as Proto from '../../proto/types'
-import { GameContext } from '../GameContext'
 import { CardHolder } from './CardHolder'
 import { CardInHand } from './CardInHand'
 import { RenderCard } from './RenderCard'
+import { useGameClient } from './useGameClient'
+import { useMyTableau } from './useMyTableau'
+import { cardIsPlayable } from './cardIsPlayable'
 
-interface Props {
-  tableau: Proto.ecmaserve.trash.IPlayerTableau
+const SlotNumber = Proto.ecmaserve.trash.SlotNumber
+
+function mapToStyle(
+  slotNumber: Proto.ecmaserve.trash.SlotNumber,
+  card?: Proto.ecmaserve.trash.ICard | null
+) {
+  return card && cardIsPlayable(slotNumber, card)
+    ? {
+        cursor: 'pointer',
+        boxShadow: '0 0 2rem 0 rgba(0, 255, 255, .9)',
+      }
+    : {}
 }
 
-export function PlayerTableau({ tableau }: Props) {
-  const context = useContext(GameContext)
+export function PlayerTableau() {
+  const gameClient = useGameClient()
+  const tableau = useMyTableau()
+  if (!tableau) {
+    return null
+  }
+
   return (
-    <div>
-      <div>A Player Tableau for {tableau.playerId}</div>
+    <div className="player-tableau">
       <CardHolder>
         {tableau.cardInHand && <CardInHand card={tableau.cardInHand} />}
       </CardHolder>
-      <div style={{ display: 'flex', width: '100%', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
         {tableau.slot1 && tableau.slot1.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot1, tableau.cardInHand)}
             faceDown={tableau.slot1.faceDown}
             card={tableau.slot1.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot1
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot1)
             }
           />
         )}
         {tableau.slot2 && tableau.slot2.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot2, tableau.cardInHand)}
             faceDown={tableau.slot2.faceDown}
             card={tableau.slot2.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot2
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot2)
             }
           />
         )}
         {tableau.slot3 && tableau.slot3.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot3, tableau.cardInHand)}
             faceDown={tableau.slot3.faceDown}
             card={tableau.slot3.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot3
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot3)
             }
           />
         )}
         {tableau.slot4 && tableau.slot4.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot4, tableau.cardInHand)}
             faceDown={tableau.slot4.faceDown}
             card={tableau.slot4.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot4
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot4)
             }
           />
         )}
         {tableau.slot5 && tableau.slot5.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot5, tableau.cardInHand)}
             faceDown={tableau.slot5.faceDown}
             card={tableau.slot5.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot5
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot5)
             }
           />
         )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
         {tableau.slot6 && tableau.slot6.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot6, tableau.cardInHand)}
             faceDown={tableau.slot6.faceDown}
             card={tableau.slot6.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot6
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot6)
             }
           />
         )}
         {tableau.slot7 && tableau.slot7.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot7, tableau.cardInHand)}
             faceDown={tableau.slot7.faceDown}
             card={tableau.slot7.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot7
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot7)
             }
           />
         )}
         {tableau.slot8 && tableau.slot8.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot8, tableau.cardInHand)}
             faceDown={tableau.slot8.faceDown}
             card={tableau.slot8.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot8
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot8)
             }
           />
         )}
         {tableau.slot9 && tableau.slot9.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot9, tableau.cardInHand)}
             faceDown={tableau.slot9.faceDown}
             card={tableau.slot9.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot9
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot9)
             }
           />
         )}
         {tableau.slot10 && tableau.slot10.isRequired && (
           <RenderCard
+            style={mapToStyle(SlotNumber.slot10, tableau.cardInHand)}
             faceDown={tableau.slot10.faceDown}
             card={tableau.slot10.current}
             onClick={() =>
-              context.gameClient?.replaceCard(
-                Proto.ecmaserve.trash.SlotNumber.slot10
-              )
+              gameClient?.replaceCard(Proto.ecmaserve.trash.SlotNumber.slot10)
             }
           />
         )}

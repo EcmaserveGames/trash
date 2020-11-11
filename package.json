@@ -45,6 +45,7 @@
     "@types/koa-send": "^4.1.2",
     "@types/node": "^14.14.6",
     "@types/shuffle-array": "^1.0.0",
+    "copy-webpack-plugin": "^6.3.0",
     "copyfiles": "^2.4.0",
     "html-webpack-plugin": "^4.5.0",
     "mkdirp": "^1.0.4",

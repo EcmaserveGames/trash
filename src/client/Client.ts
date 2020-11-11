@@ -1,9 +1,24 @@
 import { GameResponse } from '@ecmaservegames/host'
+import { ecmaservegames } from '@ecmaservegames/host/proto'
 import { blobToBuffer } from './blobToBuffer'
 import * as Proto from '../proto/types'
 import { IActions } from '../server/types'
 
 const createAction = Proto.ecmaserve.trash.Actions.create
+
+interface ActionRejection extends Error {
+  reasons?: ecmaservegames.host.IRuleResult[]
+}
+
+function buffersAreEqual(buf1: Uint8Array, buf2: Uint8Array) {
+  if (buf1.byteLength != buf2.byteLength) return false
+  var dv1 = new Int8Array(buf1)
+  var dv2 = new Int8Array(buf2)
+  for (var i = 0; i != buf1.byteLength; i++) {
+    if (dv1[i] != dv2[i]) return false
+  }
+  return true
+}
 
 export class GameClient {
   actionSocket: WebSocket
@@ -152,13 +167,24 @@ export class GameClient {
         )
       }, 5000)
 
-      // RESOLVE ON RESPONSE
-      const onMessage = (evt: MessageEvent<Blob>) => {
-        console.log('Action Response: ', evt.data)
+      const onMessage = async (evt: MessageEvent<Blob>) => {
         clearTimeout(timeout)
-        // Assume it was a success for now?
-        // Need to have the host provide a commonjs type module for this
-        resolve()
+
+        const responseResultBuffer = await blobToBuffer(evt.data)
+        const message = ecmaservegames.host.ActionResponse.decode(
+          new Uint8Array(responseResultBuffer)
+        )
+        if (!message.action?.value) {
+          return
+        }
+        if (!buffersAreEqual(message.action?.value, buffer)) {
+          return
+        }
+
+        const error: ActionRejection = new Error('Action was rejected.')
+        error.name = 'ActionRejected'
+        error.reasons = message.ruleResults
+        message.accepted ? resolve(true) : reject(error)
       }
       this.actionSocket.addEventListener('message', onMessage, { once: true })
       otherListeners.push(['message', onMessage])
