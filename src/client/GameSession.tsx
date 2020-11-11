@@ -9,6 +9,11 @@ export function GameSession() {
     return (
       <div>
         <h1>Open Game Session</h1>
+        <ul>
+          {context.gameState?.tableaus?.map((t) => (
+            <li>{t.playerId}</li>
+          ))}
+        </ul>
         <p>The game is ready for others to join</p>
         <p>
           <input value={location.href + '#' + context.gameId} />
