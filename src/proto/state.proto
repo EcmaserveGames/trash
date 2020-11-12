@@ -63,6 +63,7 @@ message PlayerTableau
     CardSpot slot9 = 9;
     CardSpot slot10 = 10;
     string player_id = 20;
+    string player_name = 21;
     Card card_in_hand = 22;
 }
 

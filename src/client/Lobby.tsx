@@ -5,10 +5,11 @@ import { ProvideName } from './TempIdentityProvider/ProvideName'
 
 export function Lobby() {
   const context = useContext(GameContext)
-  const identity = context.getIdentityToken()
+  const identity = context.getAuthentication()
   return (
     <div>
-      <h1>Welcome To Trash</h1>
+      <h1>Welcome To Trash!</h1>
+      <p>Don't be left holding all the trash.</p>
       {!identity && <ProvideName />}
       {identity && <p>Welcome {identity}. </p>}
       {identity && (

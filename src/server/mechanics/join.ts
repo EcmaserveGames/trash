@@ -11,6 +11,7 @@ export const Join = new Mechanic<IActions, IState, UserContext>('join')
     if (isInGameAlready) return
     gameState.tableaus.push({
       playerId: user.sub,
+      playerName: user.name,
       slot1: {
         isRequired: true,
       },

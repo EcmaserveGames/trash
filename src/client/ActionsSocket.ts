@@ -1,6 +1,6 @@
 import { GameSocket } from './GameSocket'
 import { Writer, Reader } from 'protobufjs'
-import * as Proto from '@ecmaservegames/host/proto'
+import { ecmaservegames } from '@ecmaservegames/host/proto'
 import { blobToBuffer } from './blobToBuffer'
 
 interface ProtocolBufferType<T> {
@@ -11,14 +11,14 @@ interface ProtocolBufferType<T> {
 }
 
 interface ActionRejection extends Error {
-  reasons?: Proto.ecmaservegames.host.IRuleResult[]
+  reasons?: ecmaservegames.host.IRuleResult[]
 }
 
 interface PendingAction {
   action: Uint8Array
   rejectionError: ActionRejection
   timer: number
-  resolve(response: Proto.ecmaservegames.host.ActionResponse): void
+  resolve(response: ecmaservegames.host.ActionResponse): void
   reject(error: ActionRejection): void
 }
 
@@ -47,7 +47,7 @@ export class ActionsSocket<T> extends GameSocket {
     rejectionError.name = 'ActionRejection'
     // Action
     this.send(buffer)
-    return new Promise<Proto.ecmaservegames.host.ActionResponse>(
+    return new Promise<ecmaservegames.host.ActionResponse>(
       (resolve, reject) => {
         const timer = window.setTimeout(() => {
           actionTimeoutError.name = 'ActionTimeout'
@@ -72,7 +72,7 @@ export class ActionsSocket<T> extends GameSocket {
   private async __handleActionResponse(blob: Blob) {
     const buffer = await blobToBuffer(blob)
     const binary = new Uint8Array(buffer)
-    const response = Proto.ecmaservegames.host.ActionResponse.decode(binary)
+    const response = ecmaservegames.host.ActionResponse.decode(binary)
 
     const inQueue = this.actionsInFlight.find(
       (x) =>

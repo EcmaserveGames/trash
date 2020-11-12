@@ -1103,6 +1103,9 @@ export namespace ecmaserve {
             /** PlayerTableau playerId */
             playerId?: (string|null);
 
+            /** PlayerTableau playerName */
+            playerName?: (string|null);
+
             /** PlayerTableau cardInHand */
             cardInHand?: (ecmaserve.trash.ICard|null);
         }
@@ -1148,6 +1151,9 @@ export namespace ecmaserve {
 
             /** PlayerTableau playerId. */
             public playerId: string;
+
+            /** PlayerTableau playerName. */
+            public playerName: string;
 
             /** PlayerTableau cardInHand. */
             public cardInHand?: (ecmaserve.trash.ICard|null);

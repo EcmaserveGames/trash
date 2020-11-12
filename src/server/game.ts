@@ -5,11 +5,11 @@ import { deck } from './deck'
 import { CardDraw, Discard, Join, Start } from './mechanics'
 import { IActions, IState, UserContext } from './types'
 import send from 'koa-send'
-import { naiveAuth } from './naiveAuth'
+import { authenticate } from './authentication'
 
 export function createGame(port: number) {
   const game = new GameServer({ port })
-    .useAuthentication<UserContext>(naiveAuth)
+    .useAuthentication<UserContext>(authenticate)
     .useState<IState>(
       path.resolve(__dirname, '../proto/state.proto'),
       'ecmaserve.trash',
@@ -34,6 +34,12 @@ export function createGame(port: number) {
         (send as any)(ctx, ctx.path.replace(/\/app\//, '/'), {
           index: 'index.html',
           root: path.resolve(__dirname, '../client'),
+        })
+      )
+      router.get('/msteams/(.*)', (ctx: any) =>
+        (send as any)(ctx, ctx.path.replace(/\/msteams\//, '/'), {
+          index: 'index.html',
+          root: path.resolve(__dirname, '../msteams'),
         })
       )
     })

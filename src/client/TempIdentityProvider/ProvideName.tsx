@@ -3,7 +3,7 @@ import { useContext, useState } from 'preact/hooks'
 import { GameContext } from '../GameContext'
 
 function generateIdentity(input: string) {
-  return input
+  return `Anon ${input}`
 }
 
 export function ProvideName() {
@@ -14,7 +14,7 @@ export function ProvideName() {
       <h3>Provide Your Name</h3>
       <form
         onSubmit={(evt) => {
-          context.setIdentityToken(name)
+          context.setAuthentication(name)
           evt.preventDefault()
           evt.stopPropagation()
           return false

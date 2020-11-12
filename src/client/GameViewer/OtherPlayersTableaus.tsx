@@ -5,7 +5,7 @@ import { PlayerTableauViewer } from './PlayerTableauViewer'
 
 export function OtherPlayerTableaus() {
   const context = useContext(GameContext)
-  const id = context.getIdentityToken()
+  const id = context.getAuthentication()
   const otherTableaus =
     context.gameState?.tableaus?.filter((x) => x.playerId !== id) || []
   return (

@@ -2571,6 +2571,7 @@ $root.ecmaserve = (function() {
              * @property {ecmaserve.trash.ICardSpot|null} [slot9] PlayerTableau slot9
              * @property {ecmaserve.trash.ICardSpot|null} [slot10] PlayerTableau slot10
              * @property {string|null} [playerId] PlayerTableau playerId
+             * @property {string|null} [playerName] PlayerTableau playerName
              * @property {ecmaserve.trash.ICard|null} [cardInHand] PlayerTableau cardInHand
              */
 
@@ -2678,6 +2679,14 @@ $root.ecmaserve = (function() {
             PlayerTableau.prototype.playerId = "";
 
             /**
+             * PlayerTableau playerName.
+             * @member {string} playerName
+             * @memberof ecmaserve.trash.PlayerTableau
+             * @instance
+             */
+            PlayerTableau.prototype.playerName = "";
+
+            /**
              * PlayerTableau cardInHand.
              * @member {ecmaserve.trash.ICard|null|undefined} cardInHand
              * @memberof ecmaserve.trash.PlayerTableau
@@ -2731,6 +2740,8 @@ $root.ecmaserve = (function() {
                     $root.ecmaserve.trash.CardSpot.encode(message.slot10, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
                 if (message.playerId != null && Object.hasOwnProperty.call(message, "playerId"))
                     writer.uint32(/* id 20, wireType 2 =*/162).string(message.playerId);
+                if (message.playerName != null && Object.hasOwnProperty.call(message, "playerName"))
+                    writer.uint32(/* id 21, wireType 2 =*/170).string(message.playerName);
                 if (message.cardInHand != null && Object.hasOwnProperty.call(message, "cardInHand"))
                     $root.ecmaserve.trash.Card.encode(message.cardInHand, writer.uint32(/* id 22, wireType 2 =*/178).fork()).ldelim();
                 return writer;
@@ -2799,6 +2810,9 @@ $root.ecmaserve = (function() {
                         break;
                     case 20:
                         message.playerId = reader.string();
+                        break;
+                    case 21:
+                        message.playerName = reader.string();
                         break;
                     case 22:
                         message.cardInHand = $root.ecmaserve.trash.Card.decode(reader, reader.uint32());
@@ -2891,6 +2905,9 @@ $root.ecmaserve = (function() {
                 if (message.playerId != null && message.hasOwnProperty("playerId"))
                     if (!$util.isString(message.playerId))
                         return "playerId: string expected";
+                if (message.playerName != null && message.hasOwnProperty("playerName"))
+                    if (!$util.isString(message.playerName))
+                        return "playerName: string expected";
                 if (message.cardInHand != null && message.hasOwnProperty("cardInHand")) {
                     var error = $root.ecmaserve.trash.Card.verify(message.cardInHand);
                     if (error)
@@ -2963,6 +2980,8 @@ $root.ecmaserve = (function() {
                 }
                 if (object.playerId != null)
                     message.playerId = String(object.playerId);
+                if (object.playerName != null)
+                    message.playerName = String(object.playerName);
                 if (object.cardInHand != null) {
                     if (typeof object.cardInHand !== "object")
                         throw TypeError(".ecmaserve.trash.PlayerTableau.cardInHand: object expected");
@@ -2996,6 +3015,7 @@ $root.ecmaserve = (function() {
                     object.slot9 = null;
                     object.slot10 = null;
                     object.playerId = "";
+                    object.playerName = "";
                     object.cardInHand = null;
                 }
                 if (message.slot1 != null && message.hasOwnProperty("slot1"))
@@ -3020,6 +3040,8 @@ $root.ecmaserve = (function() {
                     object.slot10 = $root.ecmaserve.trash.CardSpot.toObject(message.slot10, options);
                 if (message.playerId != null && message.hasOwnProperty("playerId"))
                     object.playerId = message.playerId;
+                if (message.playerName != null && message.hasOwnProperty("playerName"))
+                    object.playerName = message.playerName;
                 if (message.cardInHand != null && message.hasOwnProperty("cardInHand"))
                     object.cardInHand = $root.ecmaserve.trash.Card.toObject(message.cardInHand, options);
                 return object;

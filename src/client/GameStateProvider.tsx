@@ -13,26 +13,26 @@ interface State {
   gameId?: string
   gameState?: IState
   gameClient?: GameClient
-  identityToken?: string
+  authHeader?: string
 }
 
 export class GameStateProvider extends Component<Props, State> {
   constructor() {
     super()
     this.state = {
-      identityToken: localStorage.getItem('identity') || undefined,
+      authHeader: localStorage.getItem('identity') || undefined,
     }
   }
 
   render() {
-    const notIdentified = this.props.gameId && !this.state.identityToken
+    const notIdentified = this.props.gameId && !this.state.authHeader
     return (
       <GameContext.Provider
         value={{
           gameId: this.state.gameId,
           openANewGameSession: this.openANewGameSession,
-          setIdentityToken: this.setIdentityToken,
-          getIdentityToken: () => this.state.identityToken,
+          setAuthentication: this.setIdentityToken,
+          getAuthentication: () => this.state.authHeader,
           gameState: this.state.gameState,
           gameClient: this.state.gameClient,
         }}
@@ -43,17 +43,13 @@ export class GameStateProvider extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    if (this.props.gameId && this.state.identityToken) {
+    if (this.props.gameId && this.state.authHeader) {
       this.tryConnectToGameById(this.props.gameId)
     }
   }
 
   componentDidUpdate(_: Props, prevState: State) {
-    if (
-      this.props.gameId &&
-      !prevState.identityToken &&
-      this.state.identityToken
-    ) {
+    if (this.props.gameId && !prevState.authHeader && this.state.authHeader) {
       this.tryConnectToGameById(this.props.gameId)
     }
   }
@@ -77,7 +73,7 @@ export class GameStateProvider extends Component<Props, State> {
   setIdentityToken = (token: string) => {
     console.log('identified as ', token)
     localStorage.setItem('identity', token)
-    this.setState({ identityToken: token })
+    this.setState({ authHeader: token })
   }
 
   openANewGameSession = async () => {
@@ -94,11 +90,11 @@ export class GameStateProvider extends Component<Props, State> {
     if (this.state.gameClient) {
       this.state.gameClient.destroy()
     }
-    const client = GameClient.create(game, this.state.identityToken)
+    const client = GameClient.create(game, this.state.authHeader)
 
     window.document.title = 'Trash | ' + game.id
     location.href = '#' + game.id
-    history.pushState({ identity: this.state.identityToken }, 'Game-' + game.id)
+    history.pushState({ identity: this.state.authHeader }, 'Game-' + game.id)
 
     client.onStateUpdate((gameState) => {
       this.setState({ gameState }, () => {

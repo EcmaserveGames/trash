@@ -4,6 +4,6 @@ import { GameContext } from '../GameContext'
 export function useMyTableau() {
   const context = useContext(GameContext)
   return context.gameState?.tableaus?.find(
-    (t) => t.playerId === context.getIdentityToken()
+    (t) => t.playerId === context.getAuthentication()
   )
 }
