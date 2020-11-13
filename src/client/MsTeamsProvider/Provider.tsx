@@ -1,6 +1,12 @@
 import { h, Component } from 'preact'
 import { MsTeamsContext } from './index'
 import { getContext, Context, authentication } from '@microsoft/teams-js'
+import {
+  Colors,
+  getContext as getStylesContext,
+  IContext as StylesContext,
+  ThemeStyle,
+} from 'msteams-ui-styles-core'
 
 function randomString(length: number) {
   var text = ''
@@ -15,6 +21,17 @@ function randomString(length: number) {
 interface State {
   ctx: Context
   idToken: string
+  styleContext?: StylesContext
+}
+
+function themeToThemeStyle(value?: string): ThemeStyle {
+  if (value === 'contrast') {
+    return ThemeStyle.HighContrast
+  }
+  if (value === 'dark') {
+    return ThemeStyle.Dark
+  }
+  return ThemeStyle.Light
 }
 
 export class MsTeamsContextProvider extends Component<{}, State> {
@@ -33,18 +50,31 @@ export class MsTeamsContextProvider extends Component<{}, State> {
 
   componentDidMount() {
     getContext((ctx) =>
-      this.setState(
-        {
-          ctx,
-        },
-        () => console.log('tab context', this.state)
-      )
+      this.setState({
+        ctx,
+      })
     )
   }
 
-  async componentDidUpdate(_: {}, prevState: State) {
+  componentDidUpdate(_: {}, prevState: State) {
     if (prevState.ctx.tid || !this.state.ctx.tid) return
 
+    this.onTeamsContext()
+  }
+
+  private onTeamsContext() {
+    this.handleAuthentication()
+    const styleContext = getStylesContext({
+      style: themeToThemeStyle(this.state.ctx.theme),
+      baseFontSize: 16,
+      colors: Colors,
+    })
+    this.setState({
+      styleContext,
+    })
+  }
+
+  private async handleAuthentication() {
     const inLogin = location.hash.match(/\#login/)
     const aadState = localStorage.getItem('aad_state')
     const completeLogin = aadState && location.hash.includes(aadState)

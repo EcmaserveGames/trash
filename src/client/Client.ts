@@ -9,10 +9,10 @@ const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws'
 export class GameClient {
   actionSocket: ActionsSocket<Proto.ecmaserve.trash.IActions>
   stateSocket: GameSocket
-  identity?: string
+  authorization?: string
 
-  constructor(game: GameResponse, identityToken?: string) {
-    this.identity = identityToken
+  constructor(game: GameResponse, authorization?: string) {
+    this.authorization = authorization
     this.actionSocket = new ActionsSocket(
       `${socketProtocol}://${location.host}${game.relativePathActionsSocket}`,
       Proto.ecmaserve.trash.Actions
@@ -23,8 +23,8 @@ export class GameClient {
     )
   }
 
-  static create(game: GameResponse, identityToken?: string) {
-    return new GameClient(game, identityToken)
+  static create(game: GameResponse, authorization?: string) {
+    return new GameClient(game, authorization)
   }
 
   destroy() {
@@ -46,8 +46,12 @@ export class GameClient {
   async joinGame() {
     // Send your identity in handshake
     await Promise.all([
-      this.stateSocket.send(JSON.stringify({ identity: this.identity })),
-      this.actionSocket.send(JSON.stringify({ identity: this.identity })),
+      this.stateSocket.send(
+        JSON.stringify({ authorization: this.authorization })
+      ),
+      this.actionSocket.send(
+        JSON.stringify({ authorization: this.authorization })
+      ),
     ])
 
     await this.actionSocket.act({

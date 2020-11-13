@@ -40,7 +40,7 @@ export async function authenticate(ctx: any, next: Function) {
         ctx.state.user = AnonAuthenticate(value)
       }
       if (protocol === 'Bearer') {
-        ctx.state.user = await BearerAuthenticate(value)
+        ctx.state.user = BearerAuthenticate(value)
       }
     }
     if (!ctx.state.user) {

@@ -40,6 +40,14 @@ module.exports = {
         use: ['source-map-loader'],
         enforce: 'pre',
       },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
     ],
   },
   plugins: [

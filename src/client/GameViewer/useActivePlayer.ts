@@ -5,6 +5,6 @@ export function useActivePlayer() {
   const context = useContext(GameContext)
   return {
     activePlayer: context.gameState?.currentPlayerId || '',
-    isMe: context.gameState?.currentPlayerId === context.getAuthentication(),
+    isMe: context.gameState?.currentPlayerId === context.getIdentity()?.sub,
   }
 }

@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import { useContext } from 'preact/hooks'
 import { GameContext } from '../GameContext'
-import { GameSession } from '../GameSession'
+import { GameSession } from './GameSession'
 import { CreateGame } from './CreateGame'
 
 export function MicrosoftTeamsApp() {

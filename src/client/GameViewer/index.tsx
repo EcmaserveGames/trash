@@ -5,7 +5,6 @@ import { DiscardPile } from './DiscardPile'
 import { DrawPile } from './DrawPile'
 import { OtherPlayerTableaus } from './OtherPlayersTableaus'
 import { PlayerTableau } from './PlayerTableau'
-import { PlayerTableauViewer } from './PlayerTableauViewer'
 
 interface Props {
   gameState: Proto.ecmaserve.trash.IState

@@ -3,7 +3,10 @@ import { useContext, useState } from 'preact/hooks'
 import { GameContext } from '../GameContext'
 
 function generateIdentity(input: string) {
-  return `Anon ${input}`
+  return {
+    name: input,
+    sub: input,
+  }
 }
 
 export function ProvideName() {
@@ -14,7 +17,8 @@ export function ProvideName() {
       <h3>Provide Your Name</h3>
       <form
         onSubmit={(evt) => {
-          context.setAuthentication(name)
+          const identity = generateIdentity(name)
+          context.setIdentity(identity)
           evt.preventDefault()
           evt.stopPropagation()
           return false
@@ -24,9 +28,7 @@ export function ProvideName() {
           value={name}
           onInput={({ target }) => {
             const { value } = target as HTMLInputElement
-            const id = generateIdentity(value)
-            console.log('should be set to', id, value)
-            setName(id)
+            setName(value)
           }}
         />
         <button type="submit">Go</button>

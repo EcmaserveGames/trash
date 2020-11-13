@@ -1,22 +1,39 @@
 import { h } from 'preact'
-import { useContext, useEffect, useState } from 'preact/hooks'
+
+import { useContext, useEffect } from 'preact/hooks'
 import { GameContext } from '../GameContext'
 import { MsTeamsContext } from '../MsTeamsProvider'
+import jwtDecode from 'jwt-decode'
+import { PrimaryButton } from './Button'
+import { Surface } from './Surface'
 
 export function CreateGame() {
   const context = useContext(GameContext)
   const msContext = useContext(MsTeamsContext)
   useEffect(() => {
-    const myId = context.getAuthentication()
-    if (myId && msContext.idToken && myId !== `Bearer ${msContext.idToken}`) {
-      context.setAuthentication(`Bearer ${msContext.idToken}`)
+    const myId = context.getIdentity()
+    if (msContext.idToken && msContext.idToken !== myId?.idToken) {
+      const claims = jwtDecode(msContext.idToken) as Record<string, string>
+
+      // Decrypt Identity Token
+      context.setIdentity({
+        idToken: msContext.idToken,
+        name: 'Unknown',
+        sub: 'Unknown',
+        ...claims,
+      })
     }
   }, [context, msContext])
-  if (!context.getAuthentication()) {
-    return <div>Authenticating ... </div>
+
+  if (!context.getIdentity() || !msContext.styleContext) {
+    return <div>Loading ... </div>
   }
-  const onClick = () => {
-    context.openANewGameSession()
-  }
-  return <button onClick={onClick}>Create A Game</button>
+
+  return (
+    <Surface>
+      <PrimaryButton onClick={() => context.openANewGameSession()}>
+        Create A Game
+      </PrimaryButton>
+    </Surface>
+  )
 }

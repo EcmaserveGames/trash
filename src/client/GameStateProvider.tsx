@@ -1,6 +1,6 @@
 import { h, Component } from 'preact'
 import { IState } from '../server/types'
-import { GameContext } from './GameContext'
+import { GameContext, Identity } from './GameContext'
 import { GameResponse } from '@ecmaservegames/host'
 import { GameClient } from './Client'
 import { ProvideName } from './TempIdentityProvider/ProvideName'
@@ -13,26 +13,27 @@ interface State {
   gameId?: string
   gameState?: IState
   gameClient?: GameClient
-  authHeader?: string
+  identity?: Identity
 }
 
 export class GameStateProvider extends Component<Props, State> {
   constructor() {
     super()
+    const identityStr = localStorage.getItem('identity')
     this.state = {
-      authHeader: localStorage.getItem('identity') || undefined,
+      identity: (identityStr && JSON.parse(identityStr)) || undefined,
     }
   }
 
   render() {
-    const notIdentified = this.props.gameId && !this.state.authHeader
+    const notIdentified = this.props.gameId && !this.state.identity
     return (
       <GameContext.Provider
         value={{
           gameId: this.state.gameId,
           openANewGameSession: this.openANewGameSession,
-          setAuthentication: this.setIdentityToken,
-          getAuthentication: () => this.state.authHeader,
+          setIdentity: this.setIdentityToken,
+          getIdentity: () => this.state.identity,
           gameState: this.state.gameState,
           gameClient: this.state.gameClient,
         }}
@@ -43,13 +44,13 @@ export class GameStateProvider extends Component<Props, State> {
   }
 
   async componentDidMount() {
-    if (this.props.gameId && this.state.authHeader) {
+    if (this.props.gameId && this.state.identity) {
       this.tryConnectToGameById(this.props.gameId)
     }
   }
 
   componentDidUpdate(_: Props, prevState: State) {
-    if (this.props.gameId && !prevState.authHeader && this.state.authHeader) {
+    if (this.props.gameId && !prevState.identity && this.state.identity) {
       this.tryConnectToGameById(this.props.gameId)
     }
   }
@@ -70,10 +71,10 @@ export class GameStateProvider extends Component<Props, State> {
     }
   }
 
-  setIdentityToken = (token: string) => {
+  setIdentityToken = (token: Identity) => {
     console.log('identified as ', token)
-    localStorage.setItem('identity', token)
-    this.setState({ authHeader: token })
+    localStorage.setItem('identity', JSON.stringify(token))
+    this.setState({ identity: token })
   }
 
   openANewGameSession = async () => {
@@ -90,11 +91,14 @@ export class GameStateProvider extends Component<Props, State> {
     if (this.state.gameClient) {
       this.state.gameClient.destroy()
     }
-    const client = GameClient.create(game, this.state.authHeader)
+    const idToken = this.state.identity?.idToken
+    const authorization = idToken
+      ? `Bearer ${idToken}`
+      : `Anon ${this.state.identity?.sub}`
+    const client = GameClient.create(game, authorization)
 
     window.document.title = 'Trash | ' + game.id
-    location.href = '#' + game.id
-    history.pushState({ identity: this.state.authHeader }, 'Game-' + game.id)
+    location.hash = '#' + game.id
 
     client.onStateUpdate((gameState) => {
       this.setState({ gameState }, () => {

@@ -16,7 +16,7 @@ export function GameSession() {
         </ul>
         <p>The game is ready for others to join</p>
         <p>
-          <input value={location.href + '#' + context.gameId} />
+          <input value={location.href} />
         </p>
         <button onClick={() => context.gameClient?.startPlaying()}>
           Start Playing
