@@ -1,6 +1,6 @@
 import { h } from 'preact'
 import * as Proto from '../../proto/types'
-import { RenderCard } from './RenderCard'
+import { RenderCard, cardStyle } from './RenderCard'
 import { useActivePlayer } from './useActivePlayer'
 import { useGameClient } from './useGameClient'
 import { useMyTableau } from './useMyTableau'
@@ -19,9 +19,6 @@ export function DrawPile({ pile }: Props) {
   const hintDraw = activePlayer.isMe && !myTableau?.cardInHand
 
   const card = pile.cards.shift()
-  if (!card) {
-    return <div>Draw Empty</div>
-  }
   const blur = Math.floor(pile.cards.length / 10 / 2) + 3
   const height = Math.floor(pile.cards.length / 5 / 2) + 1
   const style = hintDraw

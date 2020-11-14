@@ -13,7 +13,7 @@ interface Props {
   onClick?: () => void
 }
 
-const cardStyle = {
+export const cardStyle = {
   backgroundColor: '#FFF',
   boxSizing: 'border-box',
   width: '8.5vh',
