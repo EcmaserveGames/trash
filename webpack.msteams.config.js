@@ -6,6 +6,7 @@ module.exports = {
   devtool: 'source-map',
   devServer: {
     https: true,
+    historyApiFallback: true,
     contentBase: './lib',
     hot: true,
     headers: {
@@ -18,6 +19,7 @@ module.exports = {
   },
   entry: './src/client/MsTeams/index.tsx',
   output: {
+    publicPath: '/msteams/',
     path: path.resolve(__dirname, 'lib/msteams'),
     filename: 'client.js',
   },

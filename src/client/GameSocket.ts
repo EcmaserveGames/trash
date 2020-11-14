@@ -96,14 +96,13 @@ export class GameSocket {
     // Cleanup
     if (this.socket) {
       this.socket.removeEventListener('close', this.onCloseHandler)
-      this.socket.addEventListener('message', this.onMessageHandler)
+      this.socket.removeEventListener('message', this.onMessageHandler)
     }
     // Setup
     this.socket = new WebSocket(location)
     await GameSocket.waitForConnection(this.socket)
     this.onConnectHook && this.onConnectHook()
     this.socket.addEventListener('close', this.onCloseHandler)
-    this.socket.addEventListener('message', this.onMessageHandler)
     // Check if there is an initialization step
     if (this.initializationMessage && this.isInitializedCallback) {
       this.waitOnInitialized = GameSocket.waitForInitialized(
@@ -112,6 +111,9 @@ export class GameSocket {
         this.isInitializedCallback
       )
     }
+    // Start Listening for messages
+    await this.waitOnInitialized
+    this.socket.addEventListener('message', this.onMessageHandler)
   }
 
   private __waitForReconnect(waitInterval: number = 3000) {
