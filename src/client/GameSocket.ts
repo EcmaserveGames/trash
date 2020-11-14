@@ -8,20 +8,32 @@ export enum SocketStatus {
 
 export type ReconnectingCallback = (timeLeft: number) => void
 export type MessageCallback<T = Blob> = (event: MessageEvent<T>) => void
+export type SocketMessage = string | ArrayBufferLike | Blob | ArrayBufferView
+export type IsInitializationResponse = (message: SocketMessage) => boolean
+
+export interface GameSocketOptions {
+  initializationMessage?: SocketMessage
+  isInitializedCallback?: IsInitializationResponse
+}
 
 export class GameSocket {
   private location: string
   private socket?: WebSocket
   private reconnectIn: number = 3000
   private waitable: Promise<void> = Promise.resolve()
+  private waitOnInitialized: Promise<void> = Promise.resolve()
   private onMessagesHook?: MessageCallback<any>
   private onConnectHook?: () => void
   private onReconnectingHook?: ReconnectingCallback
   private onCloseHook?: () => void
   private reconnectTimer?: number
+  private initializationMessage?: SocketMessage
+  private isInitializedCallback?: IsInitializationResponse
 
-  constructor(location: string) {
+  constructor(location: string, options: GameSocketOptions = {}) {
     this.location = location
+    this.initializationMessage = options.initializationMessage
+    this.isInitializedCallback = options.isInitializedCallback
     this.waitable = this.__connect(location)
   }
 
@@ -53,6 +65,7 @@ export class GameSocket {
 
   public async send(message: Uint8Array | string) {
     await this.waitable
+    await this.waitOnInitialized
     this.socket?.send(message)
   }
 
@@ -91,6 +104,14 @@ export class GameSocket {
     this.onConnectHook && this.onConnectHook()
     this.socket.addEventListener('close', this.onCloseHandler)
     this.socket.addEventListener('message', this.onMessageHandler)
+    // Check if there is an initialization step
+    if (this.initializationMessage && this.isInitializedCallback) {
+      this.waitOnInitialized = GameSocket.waitForInitialized(
+        this.socket,
+        this.initializationMessage,
+        this.isInitializedCallback
+      )
+    }
   }
 
   private __waitForReconnect(waitInterval: number = 3000) {
@@ -131,6 +152,43 @@ export class GameSocket {
 
       socket.addEventListener('open', onOpen, { once: true })
       socket.addEventListener('error', onError, { once: true })
+    })
+  }
+
+  static waitForInitialized(
+    socket: WebSocket,
+    initializationMessage: SocketMessage,
+    isInitializedCallback: IsInitializationResponse
+  ) {
+    const socketError = new Error(
+      'Connected to socket but could not initialize communication.'
+    )
+    return new Promise<void>((resolve, reject) => {
+      let timer: number
+      const onMessage = (evt: MessageEvent<SocketMessage>) => {
+        if (isInitializedCallback(evt.data)) {
+          resolve()
+        }
+        socket.removeEventListener('close', onClose)
+        window.clearTimeout(timer)
+      }
+      const onClose = () => {
+        socketError.name = 'SocketInitializationClosed'
+        socket.removeEventListener('message', onMessage)
+        reject(socketError)
+        window.clearTimeout(timer)
+      }
+
+      socket.addEventListener('message', onMessage)
+      socket.addEventListener('close', onClose, { once: true })
+
+      socket.send(initializationMessage)
+      timer = window.setTimeout(() => {
+        socketError.name = 'SocketInitializationTimeout'
+        reject(socketError)
+        socket.removeEventListener('close', onClose)
+        socket.removeEventListener('message', onMessage)
+      }, 3000)
     })
   }
 }

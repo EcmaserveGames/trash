@@ -4,14 +4,26 @@ import { UserContext } from './types'
 export interface Handshake {
   authorization: string
 }
-type HandshakeResponse = string | Handshake
+export interface HandshakeConfirm {
+  type: 'HandshakeConfirm'
+  status: 'OK'
+}
+type HandshakeRequest = string | Handshake
 
 function isHandShake(
   evt: MessageEvent<any>
-): evt is MessageEvent<HandshakeResponse> {
+): evt is MessageEvent<HandshakeRequest> {
   if (typeof evt.data === 'string') {
     const parsed = JSON.parse(evt.data)
     return !!parsed?.authorization
+  }
+  return false
+}
+
+export function isHandShakeResponse(data: any): data is HandshakeConfirm {
+  if (typeof data === 'string' && data.startsWith('{') && data.endsWith('}')) {
+    const parsed = JSON.parse(data)
+    return parsed.type === 'HandshakeConfirm'
   }
   return false
 }
@@ -35,12 +47,20 @@ export async function authenticate(ctx: any, next: Function) {
   socket.addEventListener('message', async (evt) => {
     if (isHandShake(evt) && typeof evt.data === 'string') {
       const handshake: Handshake = JSON.parse(evt.data)
-      const [protocol, value] = handshake.authorization.split(' ')
+      const [protocol, ...values] = handshake.authorization.split(' ')
       if (protocol === 'Anon') {
-        ctx.state.user = AnonAuthenticate(value)
+        ctx.state.user = AnonAuthenticate(values.join(' '))
       }
       if (protocol === 'Bearer') {
-        ctx.state.user = BearerAuthenticate(value)
+        ctx.state.user = BearerAuthenticate(values.join(' '))
+      }
+      if (ctx.state.user) {
+        socket.send(
+          JSON.stringify({
+            type: 'HandshakeConfirm',
+            status: 'OK',
+          })
+        )
       }
     }
     if (!ctx.state.user) {

@@ -1,4 +1,4 @@
-import { GameSocket } from './GameSocket'
+import { GameSocket, GameSocketOptions } from './GameSocket'
 import { Writer, Reader } from 'protobufjs'
 import { ecmaservegames } from '@ecmaservegames/host/proto'
 import { blobToBuffer } from './blobToBuffer'
@@ -26,8 +26,12 @@ export class ActionsSocket<T> extends GameSocket {
   private definition: ProtocolBufferType<T>
   private actionsInFlight: PendingAction[] = []
 
-  constructor(location: string, definition: ProtocolBufferType<T>) {
-    super(location)
+  constructor(
+    location: string,
+    definition: ProtocolBufferType<T>,
+    options?: GameSocketOptions
+  ) {
+    super(location, options)
     this.definition = definition
     this.onMessage((evt) => this.__handleActionResponse(evt.data))
   }

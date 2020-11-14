@@ -3,6 +3,7 @@ import { blobToBuffer } from './blobToBuffer'
 import * as Proto from '../proto/types'
 import { GameSocket } from './GameSocket'
 import { ActionsSocket } from './ActionsSocket'
+import { isHandShakeResponse } from '../server/authentication'
 
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws'
 
@@ -13,13 +14,22 @@ export class GameClient {
 
   constructor(game: GameResponse, authorization?: string) {
     this.authorization = authorization
+    const initializationMessage = JSON.stringify({ authorization })
     this.actionSocket = new ActionsSocket(
       `${socketProtocol}://${location.host}${game.relativePathActionsSocket}`,
-      Proto.ecmaserve.trash.Actions
+      Proto.ecmaserve.trash.Actions,
+      {
+        initializationMessage,
+        isInitializedCallback: (message) => !!isHandShakeResponse(message),
+      }
     )
 
     this.stateSocket = new GameSocket(
-      `${socketProtocol}://${location.host}${game.relativePathStateSocket}`
+      `${socketProtocol}://${location.host}${game.relativePathStateSocket}`,
+      {
+        initializationMessage,
+        isInitializedCallback: (message) => !!isHandShakeResponse(message),
+      }
     )
   }
 
@@ -44,16 +54,6 @@ export class GameClient {
   }
 
   async joinGame() {
-    // Send your identity in handshake
-    await Promise.all([
-      this.stateSocket.send(
-        JSON.stringify({ authorization: this.authorization })
-      ),
-      this.actionSocket.send(
-        JSON.stringify({ authorization: this.authorization })
-      ),
-    ])
-
     await this.actionSocket.act({
       join: {},
     })
