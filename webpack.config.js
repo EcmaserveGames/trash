@@ -16,7 +16,7 @@ module.exports = {
     },
     allowedHosts: ['localhost', 'ecmaservegames-trash.herokuapp.com'],
   },
-  entry: './src/client/web/index.tsx',
+  entry: './src/client/Web/index.tsx',
   output: {
     path: path.resolve(__dirname, 'lib/client'),
     filename: 'client.js',
