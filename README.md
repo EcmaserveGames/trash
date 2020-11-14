@@ -1,6 +1,6 @@
 # EcmaserveGame/Trash
 
-Trash is a popular card game that is easy to play. This is a web-based version using the EcmaserveGame Ecosystem.
+Trash is a semi-popular card game that is easy-ish to play. This is a web-based version using the EcmaserveGame Ecosystem.
 
 Example illustrates the use of Protocol Buffers and websockets to perform game actions and receive state udpates.
 
