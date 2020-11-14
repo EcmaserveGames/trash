@@ -1,14 +1,18 @@
 import { h } from 'preact'
-import { useContext } from 'preact/hooks'
-import { GameContext } from '../GameContext'
-import { GameSession } from './GameSession'
-import { CreateGame } from './CreateGame'
+import { Surface } from '../Shared/Surface'
+import Router from 'preact-router'
+import { App } from '../Web/App'
+import { GameLobby } from '../Web/GameLobby'
+import { setRouteBase } from '../Web/getRouteBase'
 
 export function MicrosoftTeamsApp() {
-  const context = useContext(GameContext)
-  if (context.gameState) {
-    return <GameSession />
-  } else {
-    return <CreateGame />
-  }
+  setRouteBase('/msteams/')
+  return (
+    <Surface style={{ minWidth: '100vw', minHeight: '100vh', padding: '16px' }}>
+      <Router>
+        <App path="/msteams/" />
+        <GameLobby path="/msteams/game/:gameId" />
+      </Router>
+    </Surface>
+  )
 }

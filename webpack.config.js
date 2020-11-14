@@ -4,7 +4,19 @@ const path = require('path')
 
 module.exports = {
   devtool: 'source-map',
-  entry: './src/client/index.tsx',
+  devServer: {
+    https: true,
+    contentBase: './lib',
+    hot: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'X-Requested-With, content-type, Authorization',
+    },
+    allowedHosts: ['localhost', 'ecmaservegames-trash.herokuapp.com'],
+  },
+  entry: './src/client/web/index.tsx',
   output: {
     path: path.resolve(__dirname, 'lib/client'),
     filename: 'client.js',
@@ -15,16 +27,26 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.(ts|js)x?$/,
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader',
-            options: {
-              configFile: 'tsconfig.client.json',
-            },
+            loader: 'babel-loader',
           },
         ],
+      },
+      {
+        test: /\.js$/,
+        use: ['source-map-loader'],
+        enforce: 'pre',
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
       },
     ],
   },

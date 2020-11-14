@@ -1,114 +1,95 @@
-import { h, Component } from 'preact'
+import { h, Component, ComponentChildren } from 'preact'
 import { IState } from '../server/types'
-import { GameContext, Identity } from './GameContext'
+import { GameContext } from './GameContext'
 import { GameResponse } from '@ecmaservegames/host'
 import { GameClient } from './Client'
-import { ProvideName } from './TempIdentityProvider/ProvideName'
+import { useIdentity } from './Identity/Context'
 
 interface Props {
-  gameId?: string
+  authorizationHeader?: string
 }
 
 interface State {
-  gameId?: string
   gameState?: IState
   gameClient?: GameClient
-  identity?: Identity
 }
 
-export class GameStateProvider extends Component<Props, State> {
-  constructor() {
-    super()
-    const identityStr = localStorage.getItem('identity')
-    this.state = {
-      identity: (identityStr && JSON.parse(identityStr)) || undefined,
-    }
-  }
-
+export class InnerGameStateProvider extends Component<Props, State> {
   render() {
-    const notIdentified = this.props.gameId && !this.state.identity
     return (
       <GameContext.Provider
         value={{
-          gameId: this.state.gameId,
           openANewGameSession: this.openANewGameSession,
-          setIdentity: this.setIdentityToken,
-          getIdentity: () => this.state.identity,
+          connectToGame: this.connectToGame,
           gameState: this.state.gameState,
           gameClient: this.state.gameClient,
         }}
       >
-        <div>{notIdentified ? <ProvideName /> : this.props.children}</div>
+        {this.props.children}
       </GameContext.Provider>
     )
-  }
-
-  async componentDidMount() {
-    if (this.props.gameId && this.state.identity) {
-      this.tryConnectToGameById(this.props.gameId)
-    }
-  }
-
-  componentDidUpdate(_: Props, prevState: State) {
-    if (this.props.gameId && !prevState.identity && this.state.identity) {
-      this.tryConnectToGameById(this.props.gameId)
-    }
   }
 
   componentWillUnmount() {
     this.state.gameClient?.destroy()
   }
 
-  async tryConnectToGameById(gameId: string) {
-    try {
-      const response = await fetch(`/games/${gameId}`, {
-        method: 'GET',
-      })
-      const game: GameResponse = await response.json()
-      this.connectToGame(game)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  setIdentityToken = (token: Identity) => {
-    console.log('identified as ', token)
-    localStorage.setItem('identity', JSON.stringify(token))
-    this.setState({ identity: token })
-  }
-
-  openANewGameSession = async () => {
+  private openANewGameSession = async () => {
     try {
       const response = await fetch('/games', { method: 'POST' })
-      const game = await response.json()
-      this.connectToGame(game)
+      const game: GameResponse = await response.json()
+      return game.id
     } catch (error) {
       console.error(error)
+      return
     }
   }
 
-  connectToGame(game: GameResponse) {
+  private connectToGame = async (gameId: string) => {
     if (this.state.gameClient) {
       this.state.gameClient.destroy()
     }
-    const idToken = this.state.identity?.idToken
-    const authorization = idToken
-      ? `Bearer ${idToken}`
-      : `Anon ${this.state.identity?.sub}`
-    const client = GameClient.create(game, authorization)
+    const game = await this.lookupGame(gameId)
+    if (!game) throw new Error('Could not connect to game')
 
-    window.document.title = 'Trash | ' + game.id
-    location.hash = '#' + game.id
+    const client = GameClient.create(game, this.props.authorizationHeader)
 
     client.onStateUpdate((gameState) => {
       this.setState({ gameState }, () => {
         console.log('State Updated: ', this.state)
       })
     })
-    client.joinGame()
+
     this.setState({
-      gameId: game.id,
       gameClient: client,
     })
+
+    client.joinGame()
   }
+
+  private async lookupGame(gameId: string) {
+    try {
+      const response = await fetch(`/games/${gameId}`, {
+        method: 'GET',
+      })
+      const game: GameResponse = await response.json()
+      return game
+    } catch (error) {
+      console.error(error)
+      Promise.resolve(undefined)
+    }
+  }
+}
+
+export const GameStateProvider = ({
+  children,
+}: {
+  children?: ComponentChildren
+}) => {
+  const identity = useIdentity()
+  return (
+    <InnerGameStateProvider authorizationHeader={identity.authentication}>
+      {children}
+    </InnerGameStateProvider>
+  )
 }

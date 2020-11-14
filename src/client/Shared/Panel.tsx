@@ -13,9 +13,9 @@ export function Panel(props: Props) {
   const styles = panel(theme)
   return (
     <div className={styles.container}>
-      {props.header && <div className={styles.header}>{props.header}</div>}
+      <div className={styles.header}>{props.header}</div>
       <div className={styles.body}>{props.children}</div>
-      {props.footer && <div className={styles.footer}>{props.footer}</div>}
+      <div className={styles.footer}>{props.footer}</div>
     </div>
   )
 }
