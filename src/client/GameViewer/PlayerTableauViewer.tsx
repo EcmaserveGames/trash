@@ -20,9 +20,14 @@ export function PlayerTableauViewer({ tableau }: Props) {
   const isActivePlayer = activePlayer === tableau.playerId
   return (
     <div
-      style={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'column',
+        margin: '1vh 2vw',
+      }}
     >
-      <div style={{ margin: '5px' }}>
+      <div style={{ margin: '5px', lineHeight: '2em' }}>
         {tableau.playerId}{' '}
         {isActivePlayer && <span style={{ color: 'green' }}>🟢</span>}
       </div>
