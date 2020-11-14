@@ -30,18 +30,23 @@ export function createGame(port: number) {
         ctx.redirect('/app/')
         ctx.status = 301
       })
-      router.get('/app/(.*)', (ctx: any) =>
-        (send as any)(ctx, ctx.path.replace(/\/app\//, '/'), {
+      router.get('/app/(.*)', (ctx: any) => {
+        const routePath = ctx.path.replace(/\/app\/game\/.+|\/app\/|\/app/, '/')
+        return (send as any)(ctx, routePath, {
           index: 'index.html',
           root: path.resolve(__dirname, '../client'),
         })
-      )
-      router.get('/msteams/(.*)', (ctx: any) =>
-        (send as any)(ctx, ctx.path.replace(/\/msteams\//, '/'), {
+      })
+      router.get('/msteams/(.*)', (ctx: any) => {
+        const routePath = ctx.path.replace(
+          /\/msteams\/game\/.+|\/msteams\/|\/msteams/,
+          '/'
+        )
+        return (send as any)(ctx, routePath, {
           index: 'index.html',
           root: path.resolve(__dirname, '../msteams'),
         })
-      )
+      })
     })
   return game
 }
